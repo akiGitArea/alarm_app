@@ -1,13 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:alerm_2/timeKeeper.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:video_player/video_player.dart';
-
-// import 'alarm.dart';
 import 'edit.dart';
 
 void main() async {
@@ -22,7 +19,7 @@ Future<void> _setupTimeZone() async {
   tz.setLocalLocation(tokyo);
 }
 
-/// タイマーアプリ
+// タイマーアプリ
 class TimerApp extends StatelessWidget {
   const TimerApp({super.key});
   @override
@@ -39,7 +36,7 @@ class TimerApp extends StatelessWidget {
   }
 }
 
-/// タイマーページ
+// タイマーページ
 class TimerPage extends StatefulWidget {
   final String title = 'Study Timer';
   const TimerPage({super.key});
@@ -60,7 +57,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  /// アプリのライフサイクルが変更された際に実行される処理
+  // アプリのライフサイクルが変更された際に実行される処理
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     TimeKeeper timeKeeper = context.read<TimeKeeper>();
@@ -81,7 +78,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     TimeKeeper timeKeeper = context.watch<TimeKeeper>();
 
-    /// 編集画面を表示する
+    // 編集画面を表示する
     void startEdit() {
       Navigator.push(
         context,
@@ -93,7 +90,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
       );
     }
 
-    /// タイマー終了通知をダイアログ表示
+    // タイマー終了通知をダイアログ表示
     if (timeKeeper.shouldShowDialog) {
       // 音楽再生
       _controller.play();
@@ -120,7 +117,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
       });
     }
 
-    /// リセットダイアログを表示
+    // リセットダイアログを表示
     void showResetDialog() {
       showDialog(
           context: context,
