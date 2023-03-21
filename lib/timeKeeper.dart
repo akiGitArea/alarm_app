@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:alerm_2/notifer.dart';
+import 'package:alarm_app/notifer.dart';
 
 /// タイマーのモード
 enum TimerMode { Study, Play }

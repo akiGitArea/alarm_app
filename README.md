@@ -1,4 +1,4 @@
-# alerm_2
+# alarm_app
 
 A new Flutter project.
 

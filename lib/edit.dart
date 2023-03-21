@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_picker/flutter_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:alerm_2/timeKeeper.dart';
+import 'package:alarm_app/timeKeeper.dart';
 
 /// 編集ページ
 class EditPage extends StatefulWidget {
@@ -38,40 +38,40 @@ class _EditPageState extends State<EditPage> {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(
-                  width: 200,
-                  child: Row(children: [
-                    Text("Studied Time:"),
-                    TextButton(
-                      child: Text(
-                        'edit',
-                        style: TextStyle(decoration: TextDecoration.underline),
-                      ),
-                      onPressed: () async {
-                        Picker(
-                          adapter: DateTimePickerAdapter(
-                              type: PickerDateTimeType.kHMS,
-                              value: _studyTime,
-                              customColumnType: [3, 4, 5]),
-                          title: Text("Select Time"),
-                          onConfirm: (Picker picker, List value) {
-                            setState(() => {
-                                  _studyTime = DateTime.utc(
-                                      0, 0, 0, value[0], value[1], value[2])
-                                });
-                          },
-                        ).showModal(context);
-                        _isChanged = true;
-                      },
-                    )
-                  ])),
-              Container(
-                child: Text(
-                  DateFormat.Hms().format(_studyTime),
-                  style: Theme.of(context).textTheme.headline3,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              // Container(
+              //     width: 200,
+              //     child: Row(children: [
+              //       Text("Studied Time:"),
+              //       TextButton(
+              //         child: Text(
+              //           'edit',
+              //           style: TextStyle(decoration: TextDecoration.underline),
+              //         ),
+              //         onPressed: () async {
+              //           Picker(
+              //             adapter: DateTimePickerAdapter(
+              //                 type: PickerDateTimeType.kHMS,
+              //                 value: _studyTime,
+              //                 customColumnType: [3, 4, 5]),
+              //             title: Text("Select Time"),
+              //             onConfirm: (Picker picker, List value) {
+              //               setState(() => {
+              //                     _studyTime = DateTime.utc(
+              //                         0, 0, 0, value[0], value[1], value[2])
+              //                   });
+              //             },
+              //           ).showModal(context);
+              //           _isChanged = true;
+              //         },
+              //       )
+              //     ])),
+              // Container(
+              //   child: Text(
+              //     DateFormat.Hms().format(_studyTime),
+              //     style: Theme.of(context).textTheme.headline3,
+              //     textAlign: TextAlign.center,
+              //   ),
+              // ),
               Container(
                   width: 200,
                   child: Row(children: [

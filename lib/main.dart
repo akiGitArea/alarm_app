@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:alerm_2/timeKeeper.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:video_player/video_player.dart';
 import 'edit.dart';
+import 'package:alarm_app/timeKeeper.dart';
 
 void main() async {
   _setupTimeZone();
@@ -38,7 +38,7 @@ class TimerApp extends StatelessWidget {
 
 // タイマーページ
 class TimerPage extends StatefulWidget {
-  final String title = 'Study Timer';
+  final String title = 'Alarm';
   const TimerPage({super.key});
   @override
   State<TimerPage> createState() => _TimerPageState();
@@ -117,37 +117,6 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
       });
     }
 
-    // リセットダイアログを表示
-    void showResetDialog() {
-      showDialog(
-          context: context,
-          barrierDismissible: false, // ダイアログの外をタップしてダイアログを閉じれないように
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirm'),
-              content: const Text('Are you sure you want to reset timer ?'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // これをやらないとダイアログが閉じない
-                  },
-                ),
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    timeKeeper.stopTimer();
-                    timeKeeper.studyTime = DateTime.utc(0, 0, 0);
-                    timeKeeper.playTime = DateTime.utc(0, 0, 0);
-
-                    Navigator.of(context).pop(); // これをやらないとダイアログが閉じない
-                  },
-                ),
-              ],
-            );
-          });
-    }
-
     return Scaffold(
       appBar: AppBar(
         // ステートが所属するwidget情報には`widget`でアクセスできる
@@ -177,15 +146,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                   1: FixedColumnWidth(70),
                 }, children: [
                   TableRow(children: [
-                    Text("Studied Time:",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.start),
-                    Text(timeKeeper.studyTimeText,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.start),
-                  ]),
-                  TableRow(children: [
-                    Text("Played Time:",
+                    Text("Alarm:",
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.start),
                     Text(timeKeeper.playTimeText,
@@ -197,24 +158,6 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: ElevatedButton(
-                          // FloatingActionButton だと、disabledの制御ができない
-                          onPressed: !timeKeeper.isTimerStarted
-                              ? () => {timeKeeper.startTimer(TimerMode.Play)}
-                              : null, // nullを指定すると無効化
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.red,
-                            shape: const CircleBorder(),
-                            side: timeKeeper.timerMode == TimerMode.Play
-                                ? const BorderSide(color: Colors.red, width: 3)
-                                : BorderSide.none,
-                          ),
-                          // FloatingActionButton だと、disabledの制御ができない
-                          child: const Text('Play'))),
                   SizedBox(
                       width: 80,
                       height: 80,
@@ -244,7 +187,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                               ? const BorderSide(color: Colors.blue, width: 3)
                               : BorderSide.none,
                         ),
-                        child: const Text('Study'),
+                        child: const Text('start'),
                       ))
                 ],
               ),
@@ -260,14 +203,6 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                               timeKeeper.isTimerStarted ? null : startEdit,
                           child: const Text(
                             'edit',
-                            style:
-                                TextStyle(decoration: TextDecoration.underline),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: showResetDialog,
-                          child: const Text(
-                            'reset',
                             style:
                                 TextStyle(decoration: TextDecoration.underline),
                           ),
