@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:video_player/video_player.dart';
 import 'edit.dart';
 import 'package:alarm_app/timeKeeper.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   _setupTimeZone();
@@ -62,8 +63,10 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     TimeKeeper timeKeeper = context.read<TimeKeeper>();
     if (state == AppLifecycleState.paused) {
+      // バックグラウンドに遷移時
       timeKeeper.handleOnPaused();
     } else if (state == AppLifecycleState.resumed) {
+      // フォアグランドに遷移時
       timeKeeper.handleOnResumed();
     }
   }
@@ -117,6 +120,10 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
       });
     }
 
+    var now = DateTime.now();
+    var timeFormatHHmm = DateFormat('HH:mm'); //引数に時刻のフォーマット
+    var currentTimeHHmm = timeFormatHHmm.format(now); //引数に現在日時
+
     return Scaffold(
       appBar: AppBar(
         // ステートが所属するwidget情報には`widget`でアクセスできる
@@ -133,7 +140,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
               SizedBox(
                   width: double.infinity,
                   child: Text(
-                    timeKeeper.totalTimeText,
+                    currentTimeHHmm,
                     style: Theme.of(context).textTheme.displayMedium,
                     textAlign: TextAlign.center,
                   )),
@@ -177,15 +184,15 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                       height: 80,
                       child: ElevatedButton(
                         onPressed: !timeKeeper.isTimerStarted
-                            ? () => {timeKeeper.startTimer(TimerMode.Study)}
+                            ? () => {timeKeeper.startTimer()}
                             : null,
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.blue,
                           shape: const CircleBorder(),
-                          side: timeKeeper.timerMode == TimerMode.Study
-                              ? const BorderSide(color: Colors.blue, width: 3)
-                              : BorderSide.none,
+                          // side: timeKeeper.timerMode == TimerMode.Study
+                          //     ? const BorderSide(color: Colors.blue, width: 3)
+                          //     : BorderSide.none,
                         ),
                         child: const Text('start'),
                       ))
