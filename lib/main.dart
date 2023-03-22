@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:video_player/video_player.dart';
-import 'edit.dart';
 import 'package:alarm_app/timeKeeper.dart';
 import 'package:intl/intl.dart';
 
@@ -80,19 +80,6 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     TimeKeeper timeKeeper = context.watch<TimeKeeper>();
-
-    // 編集画面を表示する
-    void startEdit() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ChangeNotifierProvider.value(
-                  value: timeKeeper,
-                  child: EditPage(),
-                )),
-      );
-    }
-
     // タイマー終了通知をダイアログ表示
     if (timeKeeper.shouldShowDialog) {
       // 音楽再生
@@ -156,7 +143,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                     Text("Alarm:",
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.start),
-                    Text(timeKeeper.playTimeText,
+                    Text(DateFormat.Hm().format(timeKeeper.alarmTime),
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.start),
                   ])
@@ -190,9 +177,6 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.blue,
                           shape: const CircleBorder(),
-                          // side: timeKeeper.timerMode == TimerMode.Study
-                          //     ? const BorderSide(color: Colors.blue, width: 3)
-                          //     : BorderSide.none,
                         ),
                         child: const Text('start'),
                       ))
@@ -206,13 +190,40 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed:
-                              timeKeeper.isTimerStarted ? null : startEdit,
-                          child: const Text(
-                            'edit',
-                            style:
-                                TextStyle(decoration: TextDecoration.underline),
-                          ),
+                          onPressed: timeKeeper.isTimerStarted
+                              ? null
+                              : () {
+                                  Picker(
+                                    adapter: DateTimePickerAdapter(
+                                        type: PickerDateTimeType.kHM,
+                                        value: timeKeeper.alarmTime,
+                                        customColumnType: [3, 4]),
+                                    title: const Text("Select Time"),
+                                    onConfirm: (Picker picker, List value) {
+                                      // ignore: unnecessary_set_literal
+                                      setState(() => {
+                                            timeKeeper.alarmTime = DateTime.utc(
+                                                int.parse(timeKeeper
+                                                    .timeFormatyyyy
+                                                    .format(timeKeeper.now)),
+                                                int.parse(timeKeeper
+                                                    .timeFormatMM
+                                                    .format(timeKeeper.now)),
+                                                int.parse(timeKeeper
+                                                    .timeFormatdd
+                                                    .format(timeKeeper.now)),
+                                                value[0],
+                                                value[1],
+                                                0)
+                                          });
+                                    },
+                                  ).showModal(context);
+                                },
+                          style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              shape: const CircleBorder()),
+                          child: const Text('set'),
                         ),
                       ])),
             ]),
