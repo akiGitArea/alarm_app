@@ -20,6 +20,15 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- 追加 再起動時およびアプリケーションの更新後も通知のスケジュールを確実に維持するために必要  -->
+            <!-- <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"> 
+                <intent-filter> 
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/> 
+                    <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/> 
+                </intent-filter> 
+            </receiver>  -->
+            <!-- 追加 プラグインがスケジュールされた通知の表示を処理するために必要  -->
+            <!-- <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" /> -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -31,4 +40,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!-- 追加 端末が起動されたときに通知を受ける権限を要求する  -->
+    <!-- <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>  -->
+    <!-- 追加 (省略可)Android通知のバイブレーションパターンをカスタマイズする場合に必要  -->
+    <!-- <uses-permission android:name="android.permission.VIBRATE" /> -->
 </manifest>
