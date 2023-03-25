@@ -22,3 +22,9 @@ flutter build apk
 adb devices -l
 adb -s [device] install ./build/app/outputs/flutter-apk/app-release.apk
 ```
+
+## install
+
+```bash
+flutter pub add [lib]
+```

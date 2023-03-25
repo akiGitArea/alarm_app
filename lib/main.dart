@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 
 void main() async {
   _setupTimeZone();
@@ -50,10 +51,10 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   Timer? _timer;
-  bool _isTimerStarted = false; // タイマーが実行中かどうか（PlayでもStudyでもOK）
+  bool _isAlarmStarted = false; // アラームが実行中かどうか
   bool _shouldShowDialog = false; // ダイアログを表示すべきか
   bool _isTimerPaused = false; // タイマーがバックグラウンドで停止中かどうか
-  bool get isTimerStarted => _isTimerStarted;
+  bool get isTimerStarted => _isAlarmStarted;
   bool get shouldShowDialog => _shouldShowDialog;
   DateTime alarmTime = DateTime.utc(0, 0, 0);
   DateTime now = DateTime.now();
@@ -75,6 +76,15 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
     _controller.initialize().then((_) {
       setState(() {});
     });
+    // 1秒ごとに現在時刻を更新
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        setState(() {
+          now = DateTime.now();
+        });
+      },
+    );
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -84,7 +94,7 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
 
   // アラームスタート
   void startAlarm() {
-    _isTimerStarted = true;
+    _isAlarmStarted = true;
     // タイマー起動（アラーム時刻と現在時刻の監視（ループ））
     _timer = Timer.periodic(
       const Duration(seconds: 1),
@@ -94,15 +104,17 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
     );
   }
 
-  // タイマーを停止する
+  // アラームストップ
   void stopAlarm() {
-    _isTimerStarted = false;
-    if (_timer != null && _timer!.isActive) _timer!.cancel();
+    _isAlarmStarted = false;
+    _timer!.cancel();
+    //画面全体再描画
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => super.widget));
   }
 
   // アラーム時刻と現在時刻の監視
   void _handleAlerm() async {
-    // この処理はフォアグラウンドでしか呼ばれないので、ローカル通知は行わない
     // アラーム時刻と現在時刻が異なる場合はリスナー継続
     now = DateTime.now();
     timeFormatyyyy = DateFormat('yyyy');
@@ -227,11 +239,12 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              // start stop テキスト
               SizedBox(
                   width: double.infinity,
                   child: Text(
                     _statrStopText,
-                    style: Theme.of(context).textTheme.displayMedium,
+                    style: Theme.of(context).textTheme.displaySmall,
                     textAlign: TextAlign.center,
                   )),
               // 現在時刻
@@ -261,45 +274,35 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
                   ])
                 ]),
               ),
+              // 並べるスタイル
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  // Startボタン
                   SizedBox(
                       width: 80,
                       height: 80,
                       child: ElevatedButton(
-                        onPressed: () {
-                          !isTimerStarted ? () => {stopAlarm()} : null;
-                          setState(() {
-                            _statrStopText = "Stop";
-                          });
-                        },
+                        // Startの状態なら非活性
+                        onPressed: _statrStopText == "Start"
+                            ? null
+                            : () {
+                                !isTimerStarted ? () => {startAlarm()} : null;
+                                setState(() {
+                                  _statrStopText = "Start";
+                                });
+                                startAlarm();
+                              },
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Colors.redAccent,
-                          shape: const CircleBorder(),
-                        ),
-                        child: const Text('Stop'),
-                      )),
-                  SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          !isTimerStarted ? () => {startAlarm()} : null;
-                          setState(() {
-                            _statrStopText = "Start";
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.blueAccent,
                           shape: const CircleBorder(),
                         ),
                         child: const Text('Start'),
-                      ))
+                      )),
                 ],
               ),
+              // 時刻設定
               Container(
                   width: double.infinity,
                   alignment: Alignment.bottomRight,
@@ -318,23 +321,46 @@ class _AlarmPageState extends State<AlarmPage> with WidgetsBindingObserver {
                                         customColumnType: [3, 4]),
                                     title: const Text("Select Time"),
                                     onConfirm: (Picker picker, List value) {
-                                      alarmTime = DateTime.utc(
-                                          int.parse(timeFormatyyyy.format(now)),
-                                          int.parse(timeFormatMM.format(now)),
-                                          int.parse(timeFormatdd.format(now)),
-                                          value[0],
-                                          value[1],
-                                          0);
+                                      setState(() {
+                                        alarmTime = DateTime.utc(
+                                            int.parse(
+                                                timeFormatyyyy.format(now)),
+                                            int.parse(timeFormatMM.format(now)),
+                                            int.parse(timeFormatdd.format(now)),
+                                            value[0],
+                                            value[1],
+                                            0);
+                                      });
                                     },
                                   ).showModal(context);
                                 },
                           style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.indigoAccent,
                               shape: const CircleBorder()),
                           child: const Text('set'),
                         ),
                       ])),
+              // Stopスライドボタン
+              SlideAction(
+                text: 'Stop',
+                outerColor: Colors.redAccent,
+                onSubmit: _statrStopText == "Stop" || _statrStopText == ""
+                    ? null
+                    : () {
+                        !isTimerStarted ? () => {stopAlarm()} : null;
+                        setState(() {
+                          _statrStopText = "Stop";
+                        });
+                        stopAlarm();
+                        //Stopスライド（画面全体）再描画
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    super.widget));
+                      },
+              ),
             ]),
       ),
     );
